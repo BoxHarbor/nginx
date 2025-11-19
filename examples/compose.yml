@@ -1,0 +1,36 @@
+services:
+  nginx:
+    image: ghcr.io/boxharbor/nginx:latest
+    container_name: boxharbor-nginx
+    ports:
+      - "8080:8080"
+    volumes:
+      # Configuration directory
+      - ./config:/config
+      # Web content directory
+      - ./web:/web
+    environment:
+      # User/Group IDs (match your host user)
+      - PUID=1000
+      - PGID=1000
+      # Timezone
+      - TZ=Etc/UTC
+      # File creation mask
+      - UMASK=022
+    restart: unless-stopped
+    # Health check
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/" ]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    # Security options (optional but recommended)
+    security_opt:
+      - no-new-privileges:true
+    # Read-only root filesystem (optional, for extra security)
+    # read_only: true
+    # tmpfs:
+    #   - /tmp
+    #   - /run/nginx
+    #   - /var/lib/nginx/tmp

@@ -1,0 +1,14 @@
+#!/bin/bash
+# Nginx service runner
+set -e
+
+echo "[nginx] Starting Nginx web server..."
+
+# Change to appropriate user based on runtime mode
+if [ "$(id -u)" -eq 0 ]; then
+    # Running as root - nginx will drop privileges itself via config
+    exec nginx -c /config/nginx.conf -g "daemon off;"
+else
+    # Running in rootless mode - already non-root
+    exec nginx -c /config/nginx.conf -g "daemon off;"
+fi

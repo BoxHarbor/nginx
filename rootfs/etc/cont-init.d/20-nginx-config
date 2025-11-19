@@ -1,0 +1,115 @@
+#!/bin/bash
+# Nginx configuration setup
+set -e
+
+echo "[nginx-config] Setting up Nginx configuration..."
+
+# Copy default configurations if they don't exist
+if [ ! -f /config/nginx.conf ]; then
+    echo "[nginx-config] Creating default nginx.conf"
+    echo "$(ls /)"
+    cp /defaults/nginx.conf /config/nginx.conf
+fi
+
+if [ ! -d /config/sites-enabled ]; then
+    echo "[nginx-config] Creating sites-enabled directory"
+    mkdir -p /config/sites-enabled
+fi
+
+if [ ! -f /config/sites-enabled/default.conf ]; then
+    echo "[nginx-config] Creating default site configuration"
+    cp /defaults/sites-enabled/default.conf /config/sites-enabled/default.conf
+fi
+
+# Create SSL directory if it doesn't exist
+if [ ! -d /config/ssl ]; then
+    echo "[nginx-config] Creating SSL directory"
+    mkdir -p /config/ssl
+fi
+
+# Create default index.html if /web is empty
+if [ ! -f /web/index.html ]; then
+    echo "[nginx-config] Creating default index.html"
+    cat > /web/index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoxHarbor Nginx</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        .links {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 0 0.5rem;
+        }
+        a:hover { text-decoration: underline; }
+        .emoji { font-size: 3rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">🚢</div>
+        <h1>BoxHarbor Nginx</h1>
+        <p>Your containerized web server is running successfully!</p>
+        <p>This is the default page. Replace <code>/web/index.html</code> with your own content.</p>
+        <div class="badge">Rootless Compatible</div>
+        <div class="links">
+            <a href="https://github.com/BoxHarbor/nginx" target="_blank">GitHub</a>
+            <a href="https://github.com/BoxHarbor/baseimage-alpine" target="_blank">Base Image</a>
+        </div>
+    </div>
+</body>
+</html>
+EOF
+fi
+
+# Test nginx configuration
+echo "[nginx-config] Testing Nginx configuration..."
+nginx -c /config/nginx.conf -t
+
+echo "[nginx-config] ✓ Nginx configuration ready"
